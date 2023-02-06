@@ -1,2 +1,2 @@
 # graphql-poc-nodejs
-Graphql Poc with node.js
+Graphql Poc with node.jsgit init
