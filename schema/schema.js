@@ -1,5 +1,5 @@
 const graphql = require("graphql");
-const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLInt, GraphQLSchema } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLInt, GraphQLList, GraphQLSchema } = graphql;
 const Books = [
     { name: "Book 1", id: "1", genre: "comedy", authorId: "2" },
     { name: "Book 2", id: "2", genre: "thriller", authorId: "3" },
@@ -17,11 +17,10 @@ const BookType = new GraphQLObjectType({
         id: { type: GraphQLString },
         name: { type: GraphQLString },
         genre: { type: GraphQLString },
-        author:{
+        author: {
             type: AuthorType,
-            resolve: (parent)=>{
-                console.log("parent---", parent)
-                return Authors.find((author)=> author.id === parent.authorId)
+            resolve: (parent) => {
+                return Authors.find((author) => author.id === parent.authorId)
             }
         }
     })
@@ -32,7 +31,13 @@ const AuthorType = new GraphQLObjectType({
     fields: () => ({
         name: { type: GraphQLString },
         id: { type: GraphQLID },
-        age: { type: GraphQLInt }
+        age: { type: GraphQLInt },
+        books: {
+            type: new GraphQLList(BookType),
+            resolve: (parent) => {
+                return Books.filter((book) => book.authorId === parent.id)
+            }
+        }
     })
 })
 
@@ -42,18 +47,17 @@ const RootQuery = new GraphQLObjectType({
         book: {
             type: BookType,
             args: { id: { type: GraphQLString } },
-            resolve(parent, args) {
-                console.log("hey")
+            resolve(args) {
                 //db query part goes here
-                return Books.find((book)=> book.id === args.id);
+                return Books.find((book) => book.id === args.id);
             }
         },
         author: {
-           type: AuthorType,
-           args: {id: {type: GraphQLString}},
-           resolve: (parent, args) => {
-            return Authors.find((author)=> author.id === args.id)
-           }
+            type: AuthorType,
+            args: { id: { type: GraphQLString } },
+            resolve: (parent, args) => {
+                return Authors.find((author) => author.id === args.id)
+            }
         }
     }
 });
