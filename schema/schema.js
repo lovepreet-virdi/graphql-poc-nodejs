@@ -11,20 +11,6 @@ const Authors = [
     { name: "Author 3", id: "3", age: 34 }
 ]
 
-const BookType = new GraphQLObjectType({
-    name: "Book",
-    fields: () => ({
-        id: { type: GraphQLString },
-        name: { type: GraphQLString },
-        genre: { type: GraphQLString },
-        author: {
-            type: AuthorType,
-            resolve: (parent) => {
-                return Authors.find((author) => author.id === parent.authorId)
-            }
-        }
-    })
-});
 
 const AuthorType = new GraphQLObjectType({
     name: "Author",
@@ -39,7 +25,22 @@ const AuthorType = new GraphQLObjectType({
             }
         }
     })
-})
+});
+
+const BookType = new GraphQLObjectType({
+    name: "Book",
+    fields: () => ({
+        id: { type: GraphQLString },
+        name: { type: GraphQLString },
+        genre: { type: GraphQLString },
+        author: {
+            type: AuthorType,
+            resolve: (parent) => {
+                return Authors.find((author) => author.id === parent.authorId)
+            }
+        }
+    })
+});
 
 const RootQuery = new GraphQLObjectType({
     name: "RootQueryType",
@@ -58,6 +59,9 @@ const RootQuery = new GraphQLObjectType({
             resolve: (parent, args) => {
                 return Authors.find((author) => author.id === args.id)
             }
+        },
+        books: {
+            type: new GraphQLList(BookType)
         }
     }
 });
